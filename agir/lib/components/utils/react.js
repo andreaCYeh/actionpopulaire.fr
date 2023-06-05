@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 
@@ -73,8 +73,11 @@ RootComponent.propTypes = {
 };
 
 export const renderReactComponent = (component, node) => {
-  node &&
-    ReactDOM.render(<React.StrictMode>{component}</React.StrictMode>, node);
+  if (!node) {
+    return;
+  }
+  const root = createRoot(node);
+  root.render(<React.StrictMode>{component}</React.StrictMode>);
 };
 
 export const mergeRefs = (...refs) => {
