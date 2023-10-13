@@ -13,6 +13,7 @@ from agir.donations.actions import (
     monthly_to_single_time_contribution,
     is_renawable_contribution,
     get_contribution_end_date,
+    single_time_to_monthly_contribution,
 )
 from agir.donations.allocations import get_allocation_list
 from agir.donations.apps import DonsConfig
@@ -288,6 +289,16 @@ class ContributionSerializer(serializers.ModelSerializer):
     locationCountry = serializers.CharField(source="meta.location_country")
     contactPhone = PhoneField(source="meta.contact_phone")
     nationality = serializers.CharField(source="meta.nationality")
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if representation["paymentTiming"] == SINGLE_TIME:
+            representation = single_time_to_monthly_contribution(
+                representation, from_date=instance.created.date()
+            )
+
+        return representation
 
     def get_payment_timing(self, obj):
         return MONTHLY if isinstance(obj, Subscription) else SINGLE_TIME

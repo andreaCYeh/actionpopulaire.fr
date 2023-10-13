@@ -44,6 +44,26 @@ def monthly_to_single_time_contribution(data):
     return data
 
 
+def single_time_to_monthly_contribution(data, from_date):
+    print(data)
+    # The multiplier is the number of month ends between today and the end date
+    multiplier = len(
+        pd.date_range(
+            start=from_date,
+            end=data.get("endDate"),
+            freq="MS",
+        )
+    )
+    data["amount"] /= multiplier
+    if data.get("allocations"):
+        data["allocations"] = [
+            {**allocation, "amount": allocation["amount"] / multiplier}
+            for allocation in data.get("allocations")
+        ]
+
+    return data
+
+
 def get_active_contribution_for_person(person=None):
     return (
         # Monthly contribution
